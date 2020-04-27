@@ -113,7 +113,10 @@ themeSelectElement.addEventListener('change',function(e){
 
 //hide default option
 paymentSelectElement.addEventListener('click',function(e){
-    paymentDefaultOptionElement.remove();
+    if(paymentSelectElement.querySelector('[value="select method"]')){
+        paymentDefaultOptionElement.remove();
+        document.getElementById('credit-card').style.display = 'block';
+    } 
 });
 
 //hide/show payments
@@ -125,6 +128,7 @@ paymentSelectElement.addEventListener('change',function(e){
 form.addEventListener('submit',function(e){
     if (!formIsValid()){
         e.preventDefault();
+        document.querySelector('.error').focus();
     }
 });
 
@@ -153,9 +157,11 @@ function formIsValid(){
     if (!activitiesTotal) {
         formIsValid = false;
         checkboxElementsSection.style.color = "red";
+        checkboxElementsSection.querySelector('input').className = "error";
     }
     else{
         checkboxElementsSection.style.cssText = '';
+        checkboxElementsSection.querySelector('input').className = "";
     }
     return formIsValid;
 }
@@ -176,12 +182,14 @@ function elementIsValid(element, regex){
 function resetErrorsStyle(element){
     element.style.cssText = '';
     element.previousElementSibling.style.cssText = '';
+    element.className = "";
 }
 //function to apply error style
 function applyErrorStyle(element){
     element.style.borderColor = 'red';
     element.style.borderWidth = '2px';
     element.style.borderStyle = 'solid';
+    element.className = "error";
     element.previousElementSibling.style.color = 'red';
 }
 //function to hide payments

@@ -3,16 +3,24 @@ const colorsSelectElement = document.querySelector('#color');
 const setOfColorOptions = colorsSelectElement.querySelectorAll('option');
 const themeSelectElement = document.querySelector('#design');
 const themeDefaultOptionElement = themeSelectElement.querySelector('option');
+const colorSelectGroup = document.querySelector('#colors-js-puns');
 const checkboxElementsSection = document.querySelector('.activities');
 const optionNode = document.createElement('option');
+const errorDiv = document.createElement('div');
+errorDiv.className = 'error-message';
 let activitiesTotal = 0;
 const paymentSelectElement = document.querySelector('#payment');
 const paymentDefaultOptionElement = paymentSelectElement.querySelector('option');
 const form = document.querySelector('form');
+const emailInput = document.querySelector('#mail');
+const emailRegex = /\S+@\S+\.\S+/;
+const creditCardDiv = document.querySelector('#credit-card');
+const creditCardNumberInput = creditCardDiv.querySelector('#cc-num');
 
 //focused on the first input element
 document.querySelector('input').focus();
 
+colorSelectGroup.style.display = 'none';
 hidePayments();
 
 //to show/hide text input for other option on Job Role
@@ -32,21 +40,25 @@ for(i = 0;i < setOfColorOptions.length; i++){
 }
 
 //created temp option-placeholder till user select theme
-optionNode.textContent = 'Please select a T-shirt theme';
+optionNode.textContent = 'Please select a T-shirt color';
 optionNode.setAttribute('selected','selected');
-colorsSelectElement.appendChild(optionNode);
+optionNode.className = 'color';
+colorsSelectElement.insertBefore(optionNode, colorsSelectElement.children[0]);
 
 //remove 'Select Theme' option on click event and show t-shirt options
-themeSelectElement.addEventListener('click',function(){
+themeSelectElement.addEventListener('click',function(e){
     let setOfThemeOptionElements = themeSelectElement.querySelectorAll('option');
     themeDefaultOptionElement.remove();
     setOfThemeOptionElements = themeSelectElement.querySelectorAll('option');
-    for(i=0; i<3;i++){
-        setOfColorOptions[i].style.display = 'block';
-    }  
-    optionNode.remove();  
+    if(!document.querySelector('.color')){
+        colorsSelectElement.insertBefore(optionNode, colorsSelectElement.children[0]);
+    }
+    colorSelectGroup.style.display = 'block';
+    toggleColorOptions(e); 
 });
-
+colorsSelectElement.addEventListener('click',function(){
+    optionNode.remove;
+});
 //function to toggle display of color options
 function toggleColorOptions(e){
     if(e.target.value === 'js puns') {
@@ -54,10 +66,9 @@ function toggleColorOptions(e){
             setOfColorOptions[i].style.display = 'block';
         } 
         for(i=3; i<6;i++){
-            setOfColorOptions[i].style.display = 'none';
+            setOfColorOptions[i].style.display = 'none';     
         } 
-        setOfColorOptions[3].removeAttribute('selected');
-        setOfColorOptions[0].setAttribute('selected','selected');
+        colorsSelectElement.selectedIndex = 0;
     } 
     else {
         for(i=0; i<3;i++){
@@ -66,14 +77,13 @@ function toggleColorOptions(e){
         for(i=3; i<6;i++){
             setOfColorOptions[i].style.display = 'block';
         }
-        setOfColorOptions[0].removeAttribute('selected');
-        setOfColorOptions[3].setAttribute('selected','selected');
+        colorsSelectElement.selectedIndex = 0;
     }
 }
 //checkboxes selection interaction
 checkboxElementsSection.addEventListener('change', function(e){
-    const activitiesTotatSpanElement = document.createElement('span');
-    activitiesTotatSpanElement.className = "cost";
+    const activitiesTotalSpanElement = document.createElement('span');
+    activitiesTotalSpanElement.className = "cost";
     const setOfCheckboxes = checkboxElementsSection.querySelectorAll('input');
     for(let i=0; i<setOfCheckboxes.length; i++){
         //handled events that scheduled at the same time
@@ -97,12 +107,13 @@ checkboxElementsSection.addEventListener('change', function(e){
     //based on totalCost adding or removing total span from html
     if (activitiesTotal){
         if(!document.querySelector('.cost')){
-            document.querySelector('form').insertBefore(activitiesTotatSpanElement, document.querySelectorAll('fieldset')[3]);
+            checkboxElementsSection.appendChild(activitiesTotalSpanElement);
         }
         document.querySelector('.cost').innerText = `Total: $${activitiesTotal}`;
     }
     else {
-        activitiesTotatSpanElement.remove();
+        console.log(activitiesTotalSpanElement);
+        document.querySelector('.cost').innerText = '';
     }
 });
 
@@ -110,7 +121,9 @@ checkboxElementsSection.addEventListener('change', function(e){
 themeSelectElement.addEventListener('change',function(e){
     toggleColorOptions(e);
 });
-
+colorSelectGroup.addEventListener('change',function(e){
+    optionNode.remove();
+});
 //hide default option
 paymentSelectElement.addEventListener('click',function(e){
     if(paymentSelectElement.querySelector('[value="select method"]')){
@@ -131,15 +144,16 @@ form.addEventListener('submit',function(e){
         document.querySelector('.error').focus();
     }
 });
-
+emailInput.addEventListener('keyup', function(){
+    if(!elementIsValid(emailInput,emailRegex)){
+        applyErrorStyle(emailInput);
+    }
+})
 //form validation function
 function formIsValid(){
     let formIsValid = true;
     const nameDomElement = document.querySelector('#name');
     const nameRegex = /^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/;
-    const emailDomElement = document.querySelector('#mail');
-    const emailRegex = /\S+@\S+\.\S+/;
-    const creditCardDomElement = document.querySelector('#cc-num');
     const creditCardRegex = /^[0-9]{13,16}$/;
     const zipCodeDomElement = document.querySelector('#zip');
     const zipCodeRegex= /^[0-9]{5}$/;
@@ -148,20 +162,35 @@ function formIsValid(){
 
     //to allow all form inputs to be validated and accordingly styled before errors displayed on the page
     if (!elementIsValid(nameDomElement,nameRegex)) formIsValid = false;
-    if (!elementIsValid(emailDomElement,emailRegex)) formIsValid = false;
+    if (!elementIsValid(emailInput,emailRegex)) formIsValid = false;
     if (paymentSelectElement.value === "credit card"){
-        if(!elementIsValid(creditCardDomElement,creditCardRegex)) formIsValid = false;
+        if(!elementIsValid(creditCardNumberInput,creditCardRegex)) {
+            displayCreditCardError(); 
+            formIsValid = false;
+        }
         if(!elementIsValid(zipCodeDomElement,zipCodeRegex)) formIsValid = false;
         if(!elementIsValid(cvvNumberDomElement,cvvRegex)) formIsValid = false;
     }
     if (!activitiesTotal) {
         formIsValid = false;
-        checkboxElementsSection.style.color = "red";
+        //added error class to the first activities input element to force focus on it after form submition if all errors before it cleared
         checkboxElementsSection.querySelector('input').className = "error";
+        checkboxElementsSection.querySelector('legend').style.color = "red";
     }
     else{
-        checkboxElementsSection.style.cssText = '';
         checkboxElementsSection.querySelector('input').className = "";
+        checkboxElementsSection.querySelector('legend').removeAttribute('style');
+    }
+
+    if(paymentSelectElement.selectedIndex === 0 & !(paymentSelectElement.value === "credit card")){
+        formIsValid = false;
+        paymentSelectElement.parentElement.querySelector('legend').style.color = "red";
+        //added error class to the payment select element to force focus on it after form submition if all errors before it cleared
+        paymentSelectElement.className = 'error';
+    }
+    else{
+        paymentSelectElement.parentElement.querySelector('legend').removeAttribute('style');
+        paymentSelectElement.className = "";
     }
     return formIsValid;
 }
@@ -194,7 +223,17 @@ function applyErrorStyle(element){
 }
 //function to hide payments
 function hidePayments(){
-    document.querySelector('#credit-card').style.display = 'none';
+    creditCardDiv.style.display = 'none';
     document.querySelector('#paypal').style.display = 'none';
     document.querySelector('#bitcoin').style.display = 'none';
+}
+function displayCreditCardError(){
+    if(!creditCardNumberInput.value.length){
+        errorDiv.innerText = 'Please enter a credit card number.';
+    }
+    else if(creditCardNumberInput.value.length < 13 || creditCardNumberInput.value.length > 16){
+        errorDiv.innerText = 'Please enter a number that is between 13 and 16 digits long.';
+    }
+    creditCardDiv.children[0].appendChild(errorDiv);
+    creditCardNumberInput.addEventListener('change', function(){errorDiv.remove();});
 }

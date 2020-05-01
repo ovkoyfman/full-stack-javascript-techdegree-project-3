@@ -165,7 +165,11 @@ option {
 	background: rgba(255, 255, 255, 0.1);
 	border-radius: 4px;
 }
-
+div.error-message {
+    margin-top: -15px;
+    margin-bottom: 15px;
+    color: red;
+}
 /* ================================= 
   Helper Classes
 ==================================== */

@@ -1,3 +1,6 @@
+const form = document.querySelector('form');
+const emailInput = document.querySelector('#mail');
+const emailRegex = /\S+@\S+\.\S+/;
 const otherTitle = document.querySelector('#other-title');
 const colorsSelectElement = document.querySelector('#color');
 const setOfColorOptions = colorsSelectElement.querySelectorAll('option');
@@ -11,9 +14,6 @@ errorDiv.className = 'error-message';
 let activitiesTotal = 0;
 const paymentSelectElement = document.querySelector('#payment');
 const paymentDefaultOptionElement = paymentSelectElement.querySelector('option');
-const form = document.querySelector('form');
-const emailInput = document.querySelector('#mail');
-const emailRegex = /\S+@\S+\.\S+/;
 const creditCardDiv = document.querySelector('#credit-card');
 const creditCardNumberInput = creditCardDiv.querySelector('#cc-num');
 
@@ -21,8 +21,8 @@ const creditCardNumberInput = creditCardDiv.querySelector('#cc-num');
 document.querySelector('input').focus();
 
 colorSelectGroup.style.display = 'none';
-hidePayments();
-
+paymentDefaultOptionElement.remove();
+hideAllPaymentsAndShow('credit-card');
 //to show/hide text input for other option on Job Role
 otherTitle.style.display = 'none';
 document.querySelector('#title').addEventListener('change',(e) => {
@@ -124,18 +124,10 @@ themeSelectElement.addEventListener('change',function(e){
 colorSelectGroup.addEventListener('change',function(e){
     optionNode.remove();
 });
-//hide default option
-paymentSelectElement.addEventListener('click',function(e){
-    if(paymentSelectElement.querySelector('[value="select method"]')){
-        paymentDefaultOptionElement.remove();
-        document.getElementById('credit-card').style.display = 'block';
-    } 
-});
 
 //hide/show payments
 paymentSelectElement.addEventListener('change',function(e){
-    hidePayments();
-    document.getElementById(e.target.value.replace(' ','-')).style.display = 'block';
+    hideAllPaymentsAndShow(e.target.value.replace(' ','-'));
 });
 
 form.addEventListener('submit',function(e){
@@ -181,17 +173,6 @@ function formIsValid(){
         checkboxElementsSection.querySelector('input').className = "";
         checkboxElementsSection.querySelector('legend').removeAttribute('style');
     }
-
-    if(paymentSelectElement.selectedIndex === 0 & !(paymentSelectElement.value === "credit card")){
-        formIsValid = false;
-        paymentSelectElement.parentElement.querySelector('legend').style.color = "red";
-        //added error class to the payment select element to force focus on it after form submition if all errors before it cleared
-        paymentSelectElement.className = 'error';
-    }
-    else{
-        paymentSelectElement.parentElement.querySelector('legend').removeAttribute('style');
-        paymentSelectElement.className = "";
-    }
     return formIsValid;
 }
 
@@ -222,10 +203,11 @@ function applyErrorStyle(element){
     element.previousElementSibling.style.color = 'red';
 }
 //function to hide payments
-function hidePayments(){
-    creditCardDiv.style.display = 'none';
+function hideAllPaymentsAndShow(id){
+    document.querySelector('#credit-card').style.display = 'none';
     document.querySelector('#paypal').style.display = 'none';
     document.querySelector('#bitcoin').style.display = 'none';
+    document.getElementById(id).style.display = 'block';
 }
 function displayCreditCardError(){
     if(!creditCardNumberInput.value.length){

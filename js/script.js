@@ -9,8 +9,10 @@ const themeDefaultOptionElement = themeSelectElement.querySelector('option');
 const colorSelectGroup = document.querySelector('#colors-js-puns');
 const checkboxElementsSection = document.querySelector('.activities');
 const optionNode = document.createElement('option');
-const errorDiv = document.createElement('div');
-errorDiv.className = 'error-message';
+const creditCardErrorDiv = document.createElement('div');
+creditCardErrorDiv.className = 'error-message';
+const emailErrorDiv = document.createElement('div');
+emailErrorDiv.className = 'error-message';
 let activitiesTotal = 0;
 const paymentSelectElement = document.querySelector('#payment');
 const paymentDefaultOptionElement = paymentSelectElement.querySelector('option');
@@ -139,6 +141,10 @@ form.addEventListener('submit',function(e){
 emailInput.addEventListener('keyup', function(){
     if(!elementIsValid(emailInput,emailRegex)){
         applyErrorStyle(emailInput);
+        displayEmailError();
+    }
+    else{
+        emailErrorDiv.remove();
     }
 })
 //form validation function
@@ -154,7 +160,10 @@ function formIsValid(){
 
     //to allow all form inputs to be validated and accordingly styled before errors displayed on the page
     if (!elementIsValid(nameDomElement,nameRegex)) formIsValid = false;
-    if (!elementIsValid(emailInput,emailRegex)) formIsValid = false;
+    if (!elementIsValid(emailInput,emailRegex)) {
+        displayEmailError();
+        formIsValid = false;
+    }
     if (paymentSelectElement.value === "credit card"){
         if(!elementIsValid(creditCardNumberInput,creditCardRegex)) {
             displayCreditCardError(); 
@@ -211,11 +220,15 @@ function hideAllPaymentsAndShow(id){
 }
 function displayCreditCardError(){
     if(!creditCardNumberInput.value.length){
-        errorDiv.innerText = 'Please enter a credit card number.';
+        creditCardErrorDiv.innerText = 'Please enter a credit card number.';
     }
     else if(creditCardNumberInput.value.length < 13 || creditCardNumberInput.value.length > 16){
-        errorDiv.innerText = 'Please enter a number that is between 13 and 16 digits long.';
+        creditCardErrorDiv.innerText = 'Please enter a number that is between 13 and 16 digits long.';
     }
-    creditCardDiv.children[0].appendChild(errorDiv);
-    creditCardNumberInput.addEventListener('change', function(){errorDiv.remove();});
+    creditCardDiv.children[0].appendChild(creditCardErrorDiv);
+    creditCardNumberInput.addEventListener('blur', function(){creditCardErrorDiv.remove();});
+}
+function displayEmailError(){
+    emailErrorDiv.innerText = "Please enter valid email";
+    emailInput.parentElement.insertBefore(emailErrorDiv, emailInput.nextElementSibling);
 }
